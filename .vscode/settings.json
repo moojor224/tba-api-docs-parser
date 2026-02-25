@@ -3,5 +3,6 @@
     "files.autoSave": "off",
     "editor.codeActionsOnSave": {
         "source.organizeImports": "always"
-    }
+    },
+    "fiveServer.ignore": ["src", "tsup-out", "webpack-out"]
 }

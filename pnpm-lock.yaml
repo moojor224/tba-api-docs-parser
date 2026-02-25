@@ -7,11 +7,13 @@ settings:
 importers:
 
   .:
-    dependencies:
+    devDependencies:
+      '@types/json-schema':
+        specifier: ^7.0.15
+        version: 7.0.15
       copy:
         specifier: ^0.3.2
         version: 0.3.2
-    devDependencies:
       css-loader:
         specifier: ^7.1.3
         version: 7.1.4(webpack@5.105.2)
