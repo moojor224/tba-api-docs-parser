@@ -1,0 +1,1 @@
+place files here that need to be copied directly to the site's root folder

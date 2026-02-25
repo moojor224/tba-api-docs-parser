@@ -1,0 +1,7 @@
+# npm node_modules dir
+node_modules
+
+# Other
+tsup-out/
+webpack-out/
+tba-api-docs-parser/
