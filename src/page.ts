@@ -1,4 +1,4 @@
-import type { JSONSchema7 } from "json-schema";
+import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import "./page.css";
 
 type APIInfo = {
@@ -114,9 +114,18 @@ function renderString(name: string, required: boolean, data: JSONSchema7 & { typ
     };
 }
 
-function schematoTypeDef([typeName, typeDef]: [string, JSONSchema7]) {
-    if (typeDef.type == "object") {
+function schematoTypeDef([typeName, typeDef]: [string, JSONSchema7Definition]) {
+    if (typeof typeDef !== "boolean" && typeDef.type == "object") {
+        const properties: TypeEntry[] = [];
+        Object.entries(typeDef.properties ?? {}).forEach(([name, def]) => {
+            properties.push({
+                name,
+                required: (typeDef.required ?? []).includes(name),
+                type: schematoTypeDef([name, def])
+            });
+        });
     }
+    return "";
 }
 
 Object.entries(schemaRoot).forEach(schematoTypeDef);
