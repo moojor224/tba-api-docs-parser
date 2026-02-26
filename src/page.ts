@@ -1,9 +1,13 @@
-import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
+import { format } from "prettier";
+import estree from "prettier/plugins/estree.js";
+import tsplugin from "prettier/plugins/typescript.js";
 import "./page.css";
+import { render } from "./renderer.js";
 
+const schemaRootPath = "#/components/schemas";
 type APIInfo = {
     components: {
-        schemas: Record<string, JSONSchema7>;
+        schemas: Record<string, any>;
     };
 };
 
@@ -23,109 +27,46 @@ const root = document.getElementById("root");
 if (!root) throw new Error("root not found");
 const status = document.createElement("div");
 root.append(status);
+const output = document.createElement("pre");
+root.append(output);
 
 const api = await getAPIJson();
-console.log(api);
 if (!api) {
     status.textContent = "failed to fetch api schema";
     throw new Error("failed to fetch api schema");
 }
 
-type TypeEntry = {
-    name: string;
-    required: boolean;
-} & (
-    | {
-          type: string;
-          properties?: never;
-          array?: never;
-      }
-    | {
-          properties: TypeEntry[];
-          array?: never;
-          type?: never;
-      }
-    | {
-          array: Pick<TypeEntry, Exclude<keyof TypeEntry, "name" | "required">>;
-          type?: never;
-          properties?: never;
-      }
-);
-
-const exampleType: TypeEntry = {
-    name: "Console",
-    required: true,
-    properties: [
-        {
-            name: "log",
-            required: true,
-            type: "()=>void"
-        },
-        {
-            name: "time",
-            required: false,
-            type: "number"
-        },
-        {
-            name: "history",
-            required: true,
-            array: {
-                type: "HistoryEntry"
-            }
-        }
-    ]
-};
-
-function getPath(path: string, obj: any = schemaRoot) {
-    const cutPath = schemaRootPath.slice(2);
-    if (path.startsWith("#")) path = path.substring(1);
-    if (path.startsWith("/")) path = path.substring(1);
-    if (path.startsWith(cutPath)) path = path.substring(cutPath.length);
-    const parts = path.split("/");
-    function recurse(parts: string[], obj: any) {
-        if (parts.length > 0 && obj !== null && obj !== undefined) {
-            if (parts[0] in obj) {
-                return recurse(parts.slice(1), obj[parts[0]]);
-            }
-            return undefined;
-        }
-        return obj;
-    }
-    return recurse(parts, obj);
-}
-
-const schemaRootPath = "#/components/schemas/";
 const schemaRoot = api.components.schemas;
-const types: TypeEntry[] = [];
-
-function renderString(name: string, required: boolean, data: JSONSchema7 & { type: "string" }): TypeEntry {
-    if (data.enum) {
-        const enumValues = `"${data.enum.join(`"|"`)}"`;
-        return {
-            name,
-            required,
-            type: enumValues
-        };
-    }
-    return {
-        name,
-        required,
-        type: "string"
-    };
-}
-
-function schematoTypeDef([typeName, typeDef]: [string, JSONSchema7Definition]) {
-    if (typeof typeDef !== "boolean" && typeDef.type == "object") {
-        const properties: TypeEntry[] = [];
-        Object.entries(typeDef.properties ?? {}).forEach(([name, def]) => {
-            properties.push({
-                name,
-                required: (typeDef.required ?? []).includes(name),
-                type: schematoTypeDef([name, def])
-            });
-        });
-    }
-    return "";
-}
-
-Object.entries(schemaRoot).forEach(schematoTypeDef);
+const dts = Object.entries(schemaRoot)
+    // .slice(27, 28)
+    .map(([key, val]) =>
+        render({
+            name: key,
+            obj: val,
+            topLevel: true
+        })
+    )
+    .join("\n");
+format(dts, {
+    arrowParens: "always",
+    objectWrap: "preserve",
+    printWidth: 128,
+    proseWrap: "preserve",
+    quoteProps: "as-needed",
+    semi: true,
+    singleQuote: false,
+    tabWidth: 4,
+    trailingComma: "none",
+    useTabs: false,
+    parser: "typescript",
+    plugins: [estree, tsplugin]
+})
+    .then((e) => {
+        console.log(e);
+        output.textContent = e;
+    })
+    .catch((err) => {
+        console.error(err);
+        console.log(dts);
+        status.textContent = err.toString();
+    });

@@ -2,7 +2,8 @@
     "liveServer.settings.port": 5501,
     "files.autoSave": "off",
     "editor.codeActionsOnSave": {
-        "source.organizeImports": "always"
+        "source.organizeImports": "always",
+        "source.fixAll.prettier": "always"
     },
     "fiveServer.ignore": ["src", "tsup-out", "webpack-out"]
 }

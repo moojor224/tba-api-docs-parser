@@ -23,5 +23,16 @@ export default {
     },
     ignoreWarnings: [
         () => true // ignore all warnings. set to false to print warnings to console when building
-    ]
+    ],
+    resolve: {
+        fallback: {
+            path: false,
+            util: false,
+            fs: false,
+            v8: false,
+            assert: false,
+            url: false,
+            module: false,
+        }
+    }
 };
