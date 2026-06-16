@@ -98,8 +98,7 @@ export function render({
                 base += Object.entries<any>(props)
                     .map(([key, val]) =>
                         render({
-                            name:
-                                key + (required.includes(key) || val.required === true ? "" : "?"),
+                            name: key + (required.includes(key) || val.required === true ? "" : "?"),
                             obj: val
                         })
                     )
@@ -130,6 +129,9 @@ export function render({
             })
         );
         base += types.join("|");
+    } else {
+        console.warn("unknown object type:", obj);
+        base += "any";
     }
     if (!raw) {
         base += ";";
