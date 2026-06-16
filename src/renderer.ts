@@ -21,7 +21,7 @@ export function render({
         );
         base += opts.join("|");
     } else if ("allOf" in obj) {
-        const opts = obj.oneOf.map((e: any) =>
+        const opts = obj.allOf.map((e: any) =>
             render({
                 name: "",
                 obj: e,
