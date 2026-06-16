@@ -20,6 +20,15 @@ export function render({
             })
         );
         base += opts.join("|");
+    } else if ("allOf" in obj) {
+        const opts = obj.oneOf.map((e: any) =>
+            render({
+                name: "",
+                obj: e,
+                raw: true
+            })
+        );
+        base += opts.join("&");
     } else if ("$ref" in obj) {
         const type: string = obj.$ref.split("/").pop();
         base += type;
