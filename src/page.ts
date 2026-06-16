@@ -30,7 +30,7 @@ root.append(status);
 const output = document.createElement("pre");
 root.append(output);
 
-function parseAPI(str?: any) {
+async function parseAPI(str?: any) {
     const api = str ? str : await getAPIJson();
     if (!api) {
         status.textContent = "failed to fetch api schema";
